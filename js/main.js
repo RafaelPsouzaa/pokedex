@@ -3,30 +3,62 @@ const pokemonNumber = document.querySelector('.pokemon_number');
 const pokemonImage = document.querySelector('.pokemon_image');
 const pokemonForm = document.querySelector('.form');
 const pokemonInput = document.querySelector('.input_search');
+const pokemonPrev = document.querySelector('.btn-prev');
+const pokemonNext = document.querySelector('.btn-next');
+let searchPokemon = 150;
 
 
 const fetchPokemon = async(pokemon) => {
     const APIResponse = await fetch (`https://pokeapi.co/api/v2/pokemon/${pokemon}`);
-    const data = await APIResponse.json();
-    console.log(data);
-    return data;
+    
+    if(APIResponse.status === 200){
+        const data = await APIResponse.json();
+        return data;
+    }
+    
 }
 
 const renderPokemon = async (pokemon) =>{
-    const data = await fetchPokemon(pokemon);
+        pokemonName.innerHTML = 'loading...';
+        pokemonNumber.innerHTML = '';
 
-    pokemonName.innerHTML = data.name;
-    pokemonNumber.innerHTML = data.id;
-    pokemonImage.src = data['sprites']['versions']['generation-v']['black-white']['animated']['front_default'];  
+    const data = await fetchPokemon(pokemon);
+    if(data){
+        pokemonImage.style.display = 'block';
+        pokemonName.innerHTML = data.name;
+        pokemonNumber.innerHTML = data.id;
+        pokemonImage.src = data['sprites']['versions']['generation-v']['black-white']['animated']['front_default'];  
+        input.value = '';
+        searchPokemon = data.id;
+
+    }else{
+        pokemonImage.style.display = 'none';
+        pokemonName.innerHTML = 'nao encontrado';
+        pokemonNumber.innerHTML = '*';
+    }
 
 }
 
 
 pokemonForm.addEventListener('submit',(event) =>{
     event.preventDefault();
-    renderPokemon(pokemonInput.value);
+    renderPokemon(pokemonInput.value.toLowerCase());
 
 });
+pokemonNext.addEventListener('click',() =>{
+    searchPokemon += 1;
+    renderPokemon(searchPokemon);
+
+});
+pokemonPrev.addEventListener('click',() =>{
+    if(searchPokemon > 1){
+        searchPokemon -=1;
+    renderPokemon(searchPokemon);
+    }
+
+});
+
+renderPokemon(searchPokemon);
 
 
 
